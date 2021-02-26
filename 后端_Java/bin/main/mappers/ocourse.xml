@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.xks.mapper.OCourseMapper">
+
+    <resultMap id="ResultMapDetail" type="com.example.xks.entity.OCourse">
+        <id property="id" column="id"/>
+        <result property="chosennum" column="chosennum"/>
+        <result property="maxnum" column="maxnum"/>
+        <result property="cid" column="cid"/>
+        <result property="cname" column="cname"/>
+        <result property="tid" column="tid"/>
+        <result property="tname" column="tname"/>
+        <result property="time" column="time"/>
+        <result property="place" column="place"/>
+        <result property="score" column="score"/>
+    </resultMap>
+
+    <select id="getOCourse" resultMap="ResultMapDetail">
+        select chosennum,maxnum,course.cid,cname,teacher.tid,tname,time,place,score
+        from offer_course INNER JOIN course INNER JOIN teacher ON offer_course.cid=course.cid AND offer_course.tid=teacher.tid
+        where if(#{cid}="",0=0,course.cid=#{cid}) and if(#{cname}="",0=0,course.cname=#{cname})
+        and if(#{score}="",0=0,course.score=#{score}) and if(#{tid}="",0=0,teacher.tid=#{tid})
+        and if(#{tname}="",0=0,teacher.tname=#{tname})
+    </select>
+
+    <select id="getChooseCourse" resultMap="ResultMapDetail">
+        select chosennum,maxnum,course.cid,cname,teacher.tid,tname,offer_course.time,place,score
+        from offer_course INNER JOIN course INNER JOIN teacher INNER JOIN choose_course
+        ON offer_course.cid=course.cid AND offer_course.tid=teacher.tid AND choose_course.cid=course.cid AND choose_course.tid=teacher.tid AND choose_course.time=offer_course.time
+        WHERE choose_course.sid=#{sid}
+    </select>
+
+    <update id="addChosenNum">
+        update offer_course set chosennum = chosennum + 1
+        WHERE offer_course.tid=#{tid} and offer_course.cid=#{cid} and offer_course.time=#{time}
+    </update>
+
+    <update id="deleteChosenNum">
+        update offer_course set chosennum = chosennum - 1
+        WHERE offer_course.tid=#{tid} and offer_course.cid=#{cid} and offer_course.time=#{time}
+    </update>
+
+</mapper>
